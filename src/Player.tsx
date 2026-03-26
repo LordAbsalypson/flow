@@ -100,14 +100,14 @@ export const Player: React.FC = () => {
       <div className="flex justify-between items-center">
         <button 
           onClick={() => navigate('/selection')}
-          className="bg-gray-200 text-gray-800 px-6 py-3 rounded-2xl text-2xl font-bold flex items-center gap-2 hover:bg-gray-300 transition-colors cursor-pointer"
+          className="bg-gray-200 text-gray-800 px-6 py-3 rounded-2xl text-2xl font-bold flex items-center gap-2 hover:bg-gray-400 transition-colors cursor-pointer"
         >
           <ArrowLeft size={24} />
           Back
         </button>
         <button 
           onClick={toggleFullscreen}
-          className="bg-gray-200 text-gray-800 px-6 py-3 rounded-2xl text-2xl font-bold flex items-center gap-2 hover:bg-gray-300 transition-colors cursor-pointer"
+          className="bg-gray-200 text-gray-800 px-6 py-3 rounded-2xl text-2xl font-bold flex items-center gap-2 hover:bg-gray-400 transition-colors cursor-pointer"
         >
           {isFullscreen ? <Minimize size={24} /> : <Maximize size={24} />}
           {isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}

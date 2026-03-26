@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Play, Search as SearchIcon, Shuffle } from 'lucide-react';
+import { Play, Search as SearchIcon, Shuffle, ArrowLeft } from 'lucide-react';
 import { GoogleGenAI } from '@google/genai';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
@@ -59,6 +59,15 @@ export const Selection: React.FC = () => {
 
   return (
     <div className="flex flex-col flex-1 gap-8">
+      <div className="flex justify-start">
+        <button 
+          onClick={() => navigate('/')}
+          className="bg-gray-200 text-gray-800 px-6 py-3 rounded-2xl text-2xl font-bold flex items-center gap-2 hover:bg-gray-400 transition-colors cursor-pointer"
+        >
+          <ArrowLeft size={24} />
+          Back
+        </button>
+      </div>
       <h2 className="text-7xl font-bold text-center mb-8">Selection</h2>
       
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 w-full max-w-4xl mx-auto">

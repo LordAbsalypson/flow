@@ -33,9 +33,18 @@ Flow is an interactive, real-time music discovery and rating application designe
 5. **Library Aggregation**: The Library screen queries the `history` collection for the current session, filters for songs that have received votes, and calculates the average rating.
 
 ### AI Prompts
-The app uses the Gemini API to generate content tailored for a younger audience:
-- **Song Info**: The prompt specifically asks for a fun fact or background about the band/song written in plain English that is easy for a 12-year-old to understand.
-- **Lyrics Summary**: A secondary prompt takes the original lyrics and asks Gemini to write a short, concrete summary explaining the main gist and topic of the song, again tailored for a 12-year-old's comprehension level.
+The app uses the Gemini API to generate content specifically tailored for users with cognitive disabilities (e.g., Down syndrome) who benefit from "Easy Read" formatting. The prompts are designed to accommodate limited working memory, literal thinking, and an early primary school reading level.
+
+**Song Info Master Prompt:**
+> "A short, concrete fact about the song or band. Use very simple, everyday words. Use short, clear sentences. Do not use metaphors, idioms, or hard words. Write at an early primary school reading level. (max 2 sentences)."
+
+**Lyrics Summary Master Prompt:**
+> "Write a short summary explaining what this song is about. You MUST follow these rules for the reader:
+> - Use very simple, everyday words and high-frequency vocabulary.
+> - Use short, clear sentences.
+> - Write at an early primary school reading level ("Easy Read" format).
+> - Translate any abstract lyrics or metaphors into literal, concrete concepts.
+> - Do NOT use idioms, complex sentences, or abstract content."
 
 ## Setup & Installation
 

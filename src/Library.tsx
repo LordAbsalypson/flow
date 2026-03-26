@@ -75,7 +75,7 @@ export const Library: React.FC = () => {
       ) : (
         <div className="flex flex-col gap-6 w-full max-w-3xl mx-auto">
           {history.map((item) => {
-            const ratingValues = Object.values(item.ratings || {});
+            const ratingValues = Object.values(item.ratings || {}) as number[];
             const avgRating = ratingValues.length > 0 
               ? (ratingValues.reduce((a, b) => a + b, 0) / ratingValues.length).toFixed(1) 
               : 'N/A';
