@@ -1,0 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Jeju+Gothic&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Jeju Gothic", ui-sans-serif, system-ui, sans-serif;
+}

@@ -1,0 +1,5 @@
+{
+  "name": "Flow",
+  "description": "A calm, simple music player for Jesse with Down syndrome. Features YouTube music playback, simplified lyrics via Gemini, and emotional feedback.",
+  "requestFramePermissions": []
+}
