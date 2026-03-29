@@ -92,7 +92,7 @@ export const Player: React.FC = () => {
     );
   }
 
-  const baseUrl = window.location.origin.replace('ais-dev', 'ais-pre');
+  const baseUrl = window.location.origin;
   const qrUrl = `${baseUrl}/vote/${sessionId}`;
 
   return (

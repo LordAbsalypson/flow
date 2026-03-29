@@ -154,6 +154,12 @@ export const Rate: React.FC = () => {
         <div className="text-lg sm:text-xl md:text-2xl text-gray-600 text-center mt-6 sm:mt-8 px-4">
           Your vote is saved automatically.
         </div>
+        
+        <div className="mt-8 p-4 bg-gray-100 rounded-xl text-sm text-gray-500 text-center max-w-sm">
+          <strong>Privacy Notice:</strong> By using this app, you agree to local data storage. 
+          Your ratings are saved with a unique ID (UUID) and no personal names are recorded.
+          Data stays on this network.
+        </div>
       </div>
     </div>
   );
