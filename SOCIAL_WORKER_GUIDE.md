@@ -33,5 +33,11 @@ This version of the app is **self-hosted**, meaning all data is stored on **your
 - **No music:** Ensure you have an internet connection, as the app needs to find songs from YouTube and Gemini AI.
 - **Resetting everything:** If you want to delete all ratings, simply delete the `db.json` file in the folder.
 
-## 5. Contact
+## 6. Video Tutorials
+We have prepared short video guides to help you:
+1.  [How to start the app](public/tutorial/videos/1_localhost.webm)
+2.  [How to use (Social Worker & Client)](public/tutorial/videos/2_usage.webm)
+3.  [Data Security & GDPR explained](public/tutorial/videos/3_gdpr.webm)
+
+## 7. Contact
 If you have questions, please reach out to your technical support.
