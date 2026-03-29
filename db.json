@@ -1,0 +1,24 @@
+{
+  "sessions": {
+    "0a6ccf62-1a9f-458b-972d-c27bf4822729": {
+      "id": "0a6ccf62-1a9f-458b-972d-c27bf4822729",
+      "currentHistoryId": "bmx69f"
+    }
+  },
+  "history": {
+    "bmx69f": {
+      "sessionId": "0a6ccf62-1a9f-458b-972d-c27bf4822729",
+      "videoId": "ZbZSe6N_BXs",
+      "title": "Happy",
+      "artist": "Pharrell Williams",
+      "timestamp": "2026-03-29T17:35:49.811Z",
+      "ratings": {
+        "991c56c3-15ff-472d-80c6-d60746d1ddea": 5
+      },
+      "emojis": {
+        "991c56c3-15ff-472d-80c6-d60746d1ddea": "happy"
+      },
+      "id": "bmx69f"
+    }
+  }
+}
