@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 import { io, Socket } from 'socket.io-client';
 
 const API_URL = import.meta.env.VITE_API_URL || `${window.location.protocol}//${window.location.hostname}:3001`;
@@ -98,7 +99,28 @@ export const getDoc = async (docRef: { collection: string; id: string }) => {
   };
 };
 
-export const query = () => {};
-export const where = () => {};
-export const getDocs = () => ({ docs: [] });
-export const orderBy = () => {};
+export const query = (collRef: { name: string }, ...constraints: any[]) => {
+  return { collectionName: collRef.name, constraints };
+};
+
+export const where = (field: string, op: string, value: any) => ({ type: 'where', field, op, value });
+export const orderBy = (field: string, direction: string) => ({ type: 'orderBy', field, direction });
+
+export const getDocs = async (q: { collectionName: string; constraints: any[] }) => {
+  const res = await fetch(`${API_URL}/api/${q.collectionName}`);
+  const items = await res.json();
+  
+  // Basic filtering for sessionId if present in constraints
+  let filtered = items;
+  const sessionConstraint = q.constraints.find(c => c.field === 'sessionId');
+  if (sessionConstraint) {
+    filtered = items.filter((item: any) => item.sessionId === sessionConstraint.value);
+  }
+
+  return {
+    forEach: (cb: (doc: any) => void) => {
+      filtered.forEach((item: any) => cb({ id: item.id, data: () => item }));
+    },
+    docs: filtered.map((item: any) => ({ id: item.id, data: () => item }))
+  };
+};

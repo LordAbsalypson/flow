@@ -33,6 +33,16 @@ const distPath = path.join(__dirname, '../dist');
 app.use(express.static(distPath));
 
 // API Endpoints
+app.get('/api/:collection', async (req, res) => {
+  const { collection } = req.params;
+  const data = db.data as any;
+  if (data[collection]) {
+    res.json(Object.values(data[collection]));
+  } else {
+    res.json([]);
+  }
+});
+
 app.get('/api/:collection/:id', async (req, res) => {
   const { collection, id } = req.params;
   const data = db.data as any;
