@@ -3,6 +3,14 @@
     "0a6ccf62-1a9f-458b-972d-c27bf4822729": {
       "id": "0a6ccf62-1a9f-458b-972d-c27bf4822729",
       "currentHistoryId": "bmx69f"
+    },
+    "1b53ec08-bcab-45ad-8d1a-8f65c6a3cc44": {
+      "id": "1b53ec08-bcab-45ad-8d1a-8f65c6a3cc44",
+      "currentHistoryId": "zf7rd2"
+    },
+    "2af3e892-a4ff-43c5-b2de-1531dd14a769": {
+      "id": "2af3e892-a4ff-43c5-b2de-1531dd14a769",
+      "currentHistoryId": "8e9jog"
     }
   },
   "history": {
@@ -19,6 +27,56 @@
         "991c56c3-15ff-472d-80c6-d60746d1ddea": "happy"
       },
       "id": "bmx69f"
+    },
+    "zf7rd2": {
+      "sessionId": "1b53ec08-bcab-45ad-8d1a-8f65c6a3cc44",
+      "videoId": "G7KNmW9a75Y",
+      "title": "Flowers",
+      "artist": "Miley Cyrus",
+      "timestamp": "2026-03-31T08:23:34.938Z",
+      "ratings": {},
+      "emojis": {},
+      "id": "zf7rd2"
+    },
+    "01i2a": {
+      "sessionId": "2af3e892-a4ff-43c5-b2de-1531dd14a769",
+      "videoId": "YQHsXMglC9A",
+      "title": "Hello",
+      "artist": "Adele",
+      "timestamp": "2026-03-31T08:31:25.410Z",
+      "ratings": {},
+      "emojis": {},
+      "id": "01i2a"
+    },
+    "xsfqwa": {
+      "sessionId": "2af3e892-a4ff-43c5-b2de-1531dd14a769",
+      "videoId": "YQHsXMglC9A",
+      "title": "Hello",
+      "artist": "Adele",
+      "timestamp": "2026-03-31T08:31:32.240Z",
+      "ratings": {},
+      "emojis": {},
+      "id": "xsfqwa"
+    },
+    "9cgh7q": {
+      "sessionId": "2af3e892-a4ff-43c5-b2de-1531dd14a769",
+      "videoId": "YQHsXMglC9A",
+      "title": "Hello",
+      "artist": "Adele",
+      "timestamp": "2026-03-31T08:31:38.953Z",
+      "ratings": {},
+      "emojis": {},
+      "id": "9cgh7q"
+    },
+    "8e9jog": {
+      "sessionId": "2af3e892-a4ff-43c5-b2de-1531dd14a769",
+      "videoId": "YQHsXMglC9A",
+      "title": "Hello",
+      "artist": "Adele",
+      "timestamp": "2026-03-31T08:31:44.968Z",
+      "ratings": {},
+      "emojis": {},
+      "id": "8e9jog"
     }
   }
 }
