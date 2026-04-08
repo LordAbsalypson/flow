@@ -1,0 +1,35 @@
+steps:
+  # Step 1: Docker Image bauen
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - 'us-west1-docker.pkg.dev/$PROJECT_ID/flow/flow-app:$COMMIT_SHA'
+      - '.'
+
+  # Step 2: Image ins Artifact Registry pushen
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'us-west1-docker.pkg.dev/$PROJECT_ID/flow/flow-app:$COMMIT_SHA'
+
+  # Step 3: Auf Cloud Run deployen
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'flow'
+      - '--image'
+      - 'us-west1-docker.pkg.dev/$PROJECT_ID/flow/flow-app:$COMMIT_SHA'
+      - '--region'
+      - 'us-west1'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+
+images:
+  - 'us-west1-docker.pkg.dev/$PROJECT_ID/flow/flow-app:$COMMIT_SHA'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
