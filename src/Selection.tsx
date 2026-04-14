@@ -2,23 +2,27 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Play, Search as SearchIcon, Shuffle, ArrowLeft } from 'lucide-react';
 import { GoogleGenAI } from '@google/genai';
+import { useSession } from './SessionContext';
+import { translations } from './translations';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 export const Selection: React.FC = () => {
   const navigate = useNavigate();
+  const { language } = useSession();
+  const t = translations[language];
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<{title: string, artist: string}[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const moods = [
-    { id: 'calm', label: 'Calm', emojiUrl: 'https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Relieved%20face/3D/relieved_face_3d.png' },
-    { id: 'happy', label: 'Happy', emojiUrl: 'https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Smiling%20face%20with%20smiling%20eyes/3D/smiling_face_with_smiling_eyes_3d.png' },
-    { id: 'sad', label: 'Sad', emojiUrl: 'https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Pensive%20face/3D/pensive_face_3d.png' },
-    { id: 'angry', label: 'Angry', emojiUrl: 'https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Pouting%20face/3D/pouting_face_3d.png' },
-    { id: 'energetic', label: 'Energetic', emojiUrl: 'https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Grinning%20face%20with%20sweat/3D/grinning_face_with_sweat_3d.png' },
-    { id: 'relaxing', label: 'Relaxing', emojiUrl: 'https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Yawning%20face/3D/yawning_face_3d.png' },
+    { id: 'calm', label: t.categories.Calm, emojiUrl: 'https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Relieved%20face/3D/relieved_face_3d.png' },
+    { id: 'happy', label: t.categories.Happy, emojiUrl: 'https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Smiling%20face%20with%20smiling%20eyes/3D/smiling_face_with_smiling_eyes_3d.png' },
+    { id: 'sad', label: t.categories.Sad, emojiUrl: 'https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Pensive%20face/3D/pensive_face_3d.png' },
+    { id: 'angry', label: t.categories.Angry || 'Angry', emojiUrl: 'https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Pouting%20face/3D/pouting_face_3d.png' },
+    { id: 'energetic', label: t.categories.Energetic, emojiUrl: 'https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Grinning%20face%20with%20sweat/3D/grinning_face_with_sweat_3d.png' },
+    { id: 'relaxing', label: t.categories.Relaxing || 'Relaxing', emojiUrl: 'https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Yawning%20face/3D/yawning_face_3d.png' },
   ];
 
   useEffect(() => {
@@ -65,10 +69,10 @@ export const Selection: React.FC = () => {
           className="bg-gray-200 text-gray-800 px-6 py-3 rounded-2xl text-2xl font-bold flex items-center gap-2 hover:bg-gray-400 transition-colors cursor-pointer"
         >
           <ArrowLeft size={24} />
-          Back
+          {t.back}
         </button>
       </div>
-      <h2 className="text-7xl font-bold text-center mb-8">Selection</h2>
+      <h2 className="text-7xl font-bold text-center mb-8">{t.selection}</h2>
       
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 w-full max-w-4xl mx-auto">
         {/* Search Card */}
@@ -105,7 +109,7 @@ export const Selection: React.FC = () => {
           className="bg-white text-black text-5xl font-bold py-16 px-8 rounded-[2rem] shadow-xl hover:bg-gray-100 transition-colors flex flex-col items-center justify-center gap-6 focus:ring-8 focus:ring-blue-500 outline-none border-4 border-transparent focus:border-blue-600 cursor-pointer"
         >
           <Shuffle size={64} />
-          <span>Random</span>
+          <span>{t.categories.Random}</span>
         </button>
 
         {/* Mood Cards */}

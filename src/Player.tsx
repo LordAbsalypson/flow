@@ -4,15 +4,18 @@ import { fetchSongData, SongData } from './geminiService';
 import { Info, SkipForward, Maximize, Minimize, ArrowLeft, Feather } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { useSession } from './SessionContext';
+import { translations } from './translations';
 import { db, collection, addDoc, doc, setDoc, handleFirestoreError, OperationType } from './firebase';
 
 export const Player: React.FC = () => {
   const { category } = useParams<{ category: string }>();
   const navigate = useNavigate();
-  const { sessionId } = useSession();
+  const { sessionId, language } = useSession();
+  const t = translations[language];
   
   const [song, setSong] = useState<SongData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadingStep, setLoadingStep] = useState(0);
   const [showSimpleLyrics, setShowSimpleLyrics] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isLyricsExpanded, setIsLyricsExpanded] = useState(false);
@@ -22,7 +25,7 @@ export const Player: React.FC = () => {
     const loadSong = async () => {
       try {
         setLoading(true);
-        const data = await fetchSongData(category || 'random');
+        const data = await fetchSongData(category || 'random', language);
         setSong(data);
         
         // Create history doc
@@ -50,7 +53,17 @@ export const Player: React.FC = () => {
       }
     };
     loadSong();
-  }, [category, sessionId]);
+  }, [category, sessionId, language]);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (loading) {
+      interval = setInterval(() => {
+        setLoadingStep((prev) => (prev + 1) % 3);
+      }, 2500);
+    }
+    return () => clearInterval(interval);
+  }, [loading]);
 
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -76,9 +89,22 @@ export const Player: React.FC = () => {
   };
 
   if (loading) {
+    const loadingMessages = [
+      t.findingSong,
+      t.findingLyrics,
+      t.gettingReady
+    ];
+    
     return (
-      <div className="flex flex-col items-center justify-center flex-1">
-        <div className="text-5xl font-bold animate-pulse">Finding a song...</div>
+      <div className="flex flex-col items-center justify-center flex-1 gap-8">
+        <div className="relative w-32 h-32 flex items-center justify-center">
+          <div className="absolute inset-0 border-8 border-blue-100 rounded-full"></div>
+          <div className="absolute inset-0 border-8 border-blue-500 rounded-full border-t-transparent animate-spin"></div>
+          <div className="w-16 h-16 bg-blue-500 rounded-full animate-pulse"></div>
+        </div>
+        <div className="text-4xl font-bold text-gray-700 transition-opacity duration-500">
+          {loadingMessages[loadingStep]}
+        </div>
       </div>
     );
   }
@@ -86,14 +112,14 @@ export const Player: React.FC = () => {
   if (!song) {
     return (
       <div className="flex flex-col items-center justify-center flex-1">
-        <div className="text-5xl font-bold">Could not find a song.</div>
-        <button onClick={() => navigate('/selection')} className="mt-8 bg-blue-500 text-white px-8 py-4 rounded-2xl text-3xl font-bold cursor-pointer">Go Back</button>
+        <div className="text-5xl font-bold">{t.couldNotFind}</div>
+        <button onClick={() => navigate('/selection')} className="mt-8 bg-blue-500 text-white px-8 py-4 rounded-2xl text-3xl font-bold cursor-pointer">{t.goBack}</button>
       </div>
     );
   }
 
   const baseUrl = window.location.origin.replace('ais-dev', 'ais-pre');
-  const qrUrl = `${baseUrl}/vote/${sessionId}`;
+  const qrUrl = `${baseUrl}/vote/${sessionId}?lang=${language}`;
 
   return (
     <div className="flex flex-col gap-6 flex-1 max-w-7xl mx-auto w-full">
@@ -103,14 +129,14 @@ export const Player: React.FC = () => {
           className="bg-gray-200 text-gray-800 px-6 py-3 rounded-2xl text-2xl font-bold flex items-center gap-2 hover:bg-gray-400 transition-colors cursor-pointer"
         >
           <ArrowLeft size={24} />
-          Back
+          {t.back}
         </button>
         <button 
           onClick={toggleFullscreen}
           className="bg-gray-200 text-gray-800 px-6 py-3 rounded-2xl text-2xl font-bold flex items-center gap-2 hover:bg-gray-400 transition-colors cursor-pointer"
         >
           {isFullscreen ? <Minimize size={24} /> : <Maximize size={24} />}
-          {isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
+          {isFullscreen ? t.exitFullscreen : t.fullscreen}
         </button>
       </div>
 
@@ -138,7 +164,7 @@ export const Player: React.FC = () => {
                 isFullscreen ? 'scale-125 origin-bottom-right bottom-8 right-8' : ''
               }`}>
                 <QRCodeSVG value={qrUrl} size={isFullscreen ? 120 : 100} />
-                <span className="text-sm font-bold text-center">Scan to Rate</span>
+                <span className="text-sm font-bold text-center">{t.scanToRate}</span>
               </div>
             </div>
           </div>
@@ -150,7 +176,7 @@ export const Player: React.FC = () => {
               className="w-full bg-blue-500 text-white p-8 rounded-[2rem] shadow-xl hover:bg-blue-600 transition-colors flex flex-col items-center justify-center gap-6 group cursor-pointer"
             >
               <SkipForward size={80} className="group-hover:scale-110 transition-transform" />
-              <span className="text-5xl font-bold text-center">Next Song</span>
+              <span className="text-5xl font-bold text-center">{t.nextSong}</span>
             </button>
           </div>
         </div>
@@ -162,26 +188,26 @@ export const Player: React.FC = () => {
             <p className="text-3xl text-gray-600">{song.artist}</p>
             
             <div className="bg-gray-100 p-6 rounded-2xl mt-4">
-              <h4 className="text-3xl font-bold mb-4 flex items-center gap-2"><Info size={28} /> Info</h4>
+              <h4 className="text-3xl font-bold mb-4 flex items-center gap-2"><Info size={28} /> {t.info}</h4>
               <p className="text-2xl leading-relaxed">{song.info}</p>
             </div>
           </div>
 
           <div className="bg-white rounded-[2rem] p-8 shadow-xl flex flex-col">
             <div className="flex justify-between items-center mb-8">
-              <h3 className="text-4xl font-bold">Lyrics</h3>
+              <h3 className="text-4xl font-bold">{t.lyrics}</h3>
               <div className="flex bg-gray-200 rounded-xl p-1">
                 <button 
                   onClick={() => setShowSimpleLyrics(true)}
                   className={`px-6 py-3 rounded-lg text-2xl font-bold transition-colors cursor-pointer flex items-center gap-2 ${showSimpleLyrics ? 'bg-white shadow-sm' : 'text-gray-600 hover:bg-gray-300'}`}
                 >
-                  <Feather size={24} /> Summary
+                  <Feather size={24} /> {t.summary}
                 </button>
                 <button 
                   onClick={() => setShowSimpleLyrics(false)}
                   className={`px-6 py-3 rounded-lg text-2xl font-bold transition-colors cursor-pointer ${!showSimpleLyrics ? 'bg-white shadow-sm' : 'text-gray-600 hover:bg-gray-300'}`}
                 >
-                  Original
+                  {t.original}
                 </button>
               </div>
             </div>
@@ -195,7 +221,7 @@ export const Player: React.FC = () => {
                     onClick={() => setIsLyricsExpanded(true)}
                     className="bg-gray-800 text-white px-6 py-3 rounded-xl text-2xl font-bold hover:bg-gray-700 transition-colors shadow-lg cursor-pointer"
                   >
-                    Read More
+                    {t.readMore}
                   </button>
                 </div>
               )}
@@ -206,7 +232,7 @@ export const Player: React.FC = () => {
                   onClick={() => setIsLyricsExpanded(false)}
                   className="bg-gray-200 text-gray-800 px-6 py-3 rounded-xl text-2xl font-bold hover:bg-gray-300 transition-colors cursor-pointer"
                 >
-                  Show Less
+                  {t.showLess}
                 </button>
               </div>
             )}

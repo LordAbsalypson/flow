@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { db, doc, updateDoc, onSnapshot, handleFirestoreError, OperationType } from './firebase';
 import { v4 as uuidv4 } from 'uuid';
+import { X } from 'lucide-react';
 
 export const Rate: React.FC = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
@@ -11,6 +12,29 @@ export const Rate: React.FC = () => {
   const [songTitle, setSongTitle] = useState<string>('');
   const [currentHistoryId, setCurrentHistoryId] = useState<string | null>(null);
   const [userId, setUserId] = useState<string>('');
+  const [showGdprPopup, setShowGdprPopup] = useState(false);
+  const [searchParams] = useSearchParams();
+  const lang = searchParams.get('lang') || 'English';
+
+  const gdprContent = {
+    English: {
+      button: "Privacy Info",
+      title: "Data Privacy Information",
+      text: "This app uses cookies and local storage to save your session. A random unique ID (UUID) is generated to link your ratings to your device. No personal data (like your name or email) is collected or stored. By using this app, you agree to this data processing."
+    },
+    German: {
+      button: "Datenschutz-Info",
+      title: "Datenschutzinformationen",
+      text: "Diese App verwendet Cookies und lokalen Speicher, um Ihre Sitzung zu speichern. Eine zufällige eindeutige ID (UUID) wird generiert, um Ihre Bewertungen mit Ihrem Gerät zu verknüpfen. Es werden keine persönlichen Daten (wie Ihr Name oder Ihre E-Mail-Adresse) gesammelt oder gespeichert. Durch die Nutzung dieser App stimmen Sie dieser Datenverarbeitung zu."
+    },
+    Finnish: {
+      button: "Tietosuojatiedot",
+      title: "Tietosuojatiedot",
+      text: "Tämä sovellus käyttää evästeitä ja paikallista tallennustilaa istuntosi tallentamiseen. Satunnainen yksilöllinen tunnus (UUID) luodaan arvioidesi yhdistämiseksi laitteeseesi. Henkilökohtaisia tietoja (kuten nimeäsi tai sähköpostiosoitettasi) ei kerätä tai tallenneta. Käyttämällä tätä sovellusta hyväksyt tämän tietojenkäsittelyn."
+    }
+  };
+
+  const currentGdpr = gdprContent[lang as keyof typeof gdprContent] || gdprContent.English;
 
   const emojis = [
     { id: 'sad', url: 'https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Pensive%20face/3D/pensive_face_3d.png' },
@@ -154,7 +178,37 @@ export const Rate: React.FC = () => {
         <div className="text-lg sm:text-xl md:text-2xl text-gray-600 text-center mt-6 sm:mt-8 px-4">
           Your vote is saved automatically.
         </div>
+
+        <button 
+          onClick={() => setShowGdprPopup(true)}
+          className="mt-8 text-sm sm:text-base text-gray-500 underline cursor-pointer hover:text-gray-700"
+        >
+          {currentGdpr.button}
+        </button>
       </div>
+
+      {showGdprPopup && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl relative">
+            <button 
+              onClick={() => setShowGdprPopup(false)}
+              className="absolute top-4 right-4 text-gray-500 hover:text-black cursor-pointer"
+            >
+              <X size={24} />
+            </button>
+            <h3 className="text-2xl font-bold mb-4 pr-8">{currentGdpr.title}</h3>
+            <p className="text-lg text-gray-700 leading-relaxed">
+              {currentGdpr.text}
+            </p>
+            <button 
+              onClick={() => setShowGdprPopup(false)}
+              className="mt-6 w-full bg-blue-500 text-white py-3 rounded-xl font-bold text-xl hover:bg-blue-600 cursor-pointer"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

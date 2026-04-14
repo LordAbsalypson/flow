@@ -8,6 +8,7 @@ import { Player } from './Player';
 import { Feedback } from './Feedback';
 import { Library } from './Library';
 import { Rate } from './Rate';
+import { GdprInfo } from './GdprInfo';
 
 export default function App() {
   return (
@@ -21,6 +22,7 @@ export default function App() {
             <Route path="/feedback/:historyId" element={<Feedback />} />
             <Route path="/library" element={<Library />} />
             <Route path="/vote/:sessionId" element={<Rate />} />
+            <Route path="/gdpr" element={<GdprInfo />} />
           </Routes>
         </Layout>
       </BrowserRouter>

@@ -11,14 +11,13 @@ export interface SongData {
   info: string;
 }
 
-export const fetchSongData = async (category: string, retries = 3): Promise<SongData> => {
+export const fetchSongData = async (category: string, language: string = 'English', retries = 3): Promise<SongData> => {
   const prompt = `Find a popular ${category} song.
   Return ONLY a valid JSON object with the following fields:
   - videoId: the YouTube video ID. IMPORTANT: Prefer lyric videos or audio-only versions, as official music videos often block embedding.
   - title: the song title.
   - artist: the artist name.
-  - originalLyrics: the first 10-15 lines of the lyrics.
-  - info: A short, concrete fact about the song or band. Use very simple, everyday words. Use short, clear sentences. Do not use metaphors, idioms, or hard words. Write at an early primary school reading level. (max 2 sentences).`;
+  - info: A short, concrete fact about the band or artist (2-3 sentences). Use very simple, everyday words. Use short, clear sentences. Do not use metaphors, idioms, or hard words. Write at an early primary school reading level. It should give a insight on the artist that you can understand the lyrics better (dont include the song). MUST BE IN ${language.toUpperCase()} LANGUAGE.`;
 
   const response = await ai.models.generateContent({
     model: 'gemini-3-flash-preview',
@@ -36,10 +35,40 @@ export const fetchSongData = async (category: string, retries = 3): Promise<Song
     const embedData = await embedCheck.json();
     if (embedData.error && retries > 0) {
       console.log(`Video ${data.videoId} not embeddable, retrying...`);
-      return fetchSongData(category, retries - 1);
+      return fetchSongData(category, language, retries - 1);
     }
   } catch (e) {
     console.warn("Could not verify video embeddability", e);
+  }
+
+  // Fetch complete lyrics from lyrics database (lyrics.ovh)
+  let originalLyrics = '';
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 2500); // 2.5s timeout for fast fail
+    const lyricsRes = await fetch(`https://api.lyrics.ovh/v1/${encodeURIComponent(data.artist)}/${encodeURIComponent(data.title)}`, { signal: controller.signal });
+    clearTimeout(timeoutId);
+    if (lyricsRes.ok) {
+      const lyricsData = await lyricsRes.json();
+      originalLyrics = lyricsData.lyrics || '';
+    }
+  } catch (e) {
+    console.warn("Failed to fetch lyrics from DB (timeout or error)", e);
+  }
+
+  // Fallback to Gemini if lyrics DB fails
+  if (!originalLyrics || originalLyrics.trim() === '') {
+    try {
+      const lyricsFallbackPrompt = `Provide the COMPLETE original lyrics for the song "${data.title}" by ${data.artist}. Return ONLY the lyrics, nothing else.`;
+      const lyricsFallbackResponse = await ai.models.generateContent({
+        model: 'gemini-3-flash-preview',
+        contents: lyricsFallbackPrompt,
+      });
+      originalLyrics = lyricsFallbackResponse.text || '';
+    } catch (e) {
+      console.error("Failed to fetch lyrics from Gemini fallback", e);
+      originalLyrics = "Lyrics not available.";
+    }
   }
 
   // Now simplify the lyrics
@@ -50,7 +79,8 @@ export const fetchSongData = async (category: string, retries = 3): Promise<Song
   - Write at an early primary school reading level ("Easy Read" format).
   - Translate any abstract lyrics or metaphors into literal, concrete concepts.
   - Do NOT use idioms, complex sentences, or abstract content.
-  Lyrics: \n${data.originalLyrics}`;
+  - The summary MUST BE IN ${language.toUpperCase()} LANGUAGE.
+  Lyrics: \n${originalLyrics}`;
   
   const simplifyResponse = await ai.models.generateContent({
     model: 'gemini-3.1-flash-lite-preview',
@@ -59,7 +89,8 @@ export const fetchSongData = async (category: string, retries = 3): Promise<Song
 
   return {
     ...data,
-    simplifiedLyrics: simplifyResponse.text || data.originalLyrics,
+    originalLyrics,
+    simplifiedLyrics: simplifyResponse.text || originalLyrics,
   };
 };
 
