@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { db, doc, updateDoc, handleFirestoreError, OperationType } from './firebase';
+import { api } from './api';
 import { CheckCircle } from 'lucide-react';
 
 export const Feedback: React.FC = () => {
@@ -18,14 +18,12 @@ export const Feedback: React.FC = () => {
     
     setSaving(true);
     try {
-      const docRef = doc(db, 'history', historyId);
-      await updateDoc(docRef, {
-        rating,
-        emoji,
-      });
+      // Create feedback using the local API. Wait, actually Feedback.tsx used history update logic previously (updating history rating/emoji directly).
+      // If we just want to update ratings logic from Feedback.tsx, we can reuse history.vote but with a generic userId, or we can just send it.
+      await api.history.vote(historyId, "feedback_user", { rating: rating || undefined, emoji: emoji || undefined });
       navigate('/library');
     } catch (error) {
-      handleFirestoreError(error, OperationType.UPDATE, `history/${historyId}`);
+      console.error(error);
     } finally {
       setSaving(false);
     }

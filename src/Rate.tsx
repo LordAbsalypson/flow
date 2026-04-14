@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
-import { db, doc, updateDoc, onSnapshot, handleFirestoreError, OperationType } from './firebase';
+import { api, socket } from './api';
 import { v4 as uuidv4 } from 'uuid';
 import { X } from 'lucide-react';
 
@@ -58,49 +58,69 @@ export const Rate: React.FC = () => {
   useEffect(() => {
     if (!sessionId) return;
 
-    const unsubscribe = onSnapshot(doc(db, 'sessions', sessionId), (docSnap) => {
-      if (docSnap.exists()) {
-        const data = docSnap.data();
+    const fetchSession = async () => {
+      try {
+        const data = await api.sessions.get(sessionId);
         if (data.currentHistoryId && data.currentHistoryId !== currentHistoryId) {
           setCurrentHistoryId(data.currentHistoryId);
         }
+      } catch (err) {
+        console.error(err);
       }
-    }, (error) => {
-      handleFirestoreError(error, OperationType.GET, `sessions/${sessionId}`);
-    });
+    };
 
-    return () => unsubscribe();
+    fetchSession();
+
+    const handleSessionUpdated = (data: any) => {
+      if (data.id === sessionId && data.currentHistoryId !== currentHistoryId) {
+        setCurrentHistoryId(data.currentHistoryId);
+      }
+    };
+
+    socket.on('sessionUpdated', handleSessionUpdated);
+    return () => {
+      socket.off('sessionUpdated', handleSessionUpdated);
+    };
   }, [sessionId, currentHistoryId]);
 
   // Listen to the current history document to sync rating and emoji
   useEffect(() => {
     if (!currentHistoryId || !userId) return;
 
-    const unsubscribe = onSnapshot(doc(db, 'history', currentHistoryId), (docSnap) => {
-      if (docSnap.exists()) {
-        const data = docSnap.data();
+    const fetchHistory = async () => {
+      try {
+        const data = await api.history.getSingle(currentHistoryId);
         setSongTitle(data.title || '');
         const userRating = data.ratings && data.ratings[userId] ? data.ratings[userId] : null;
         const userEmoji = data.emojis && data.emojis[userId] ? data.emojis[userId] : null;
         setRating(userRating);
         setEmoji(userEmoji);
+      } catch (err) {
+        console.error(err);
       }
-    }, (error) => {
-      handleFirestoreError(error, OperationType.GET, `history/${currentHistoryId}`);
-    });
+    };
 
-    return () => unsubscribe();
+    fetchHistory();
+
+    const handleHistoryUpdated = (data: any) => {
+      if (data.id === currentHistoryId) {
+        fetchHistory();
+      }
+    };
+
+    socket.on('historyUpdated', handleHistoryUpdated);
+    return () => {
+      socket.off('historyUpdated', handleHistoryUpdated);
+    };
   }, [currentHistoryId, userId]);
 
   const handleRate = async (newRating: number) => {
     if (!currentHistoryId || !userId) return;
     setRating(newRating);
     try {
-      await updateDoc(doc(db, 'history', currentHistoryId), { 
-        [`ratings.${userId}`]: newRating 
-      });
+      await api.history.vote(currentHistoryId, userId, { rating: newRating });
     } catch (error) {
-      handleFirestoreError(error, OperationType.UPDATE, `history/${currentHistoryId}`);
+      console.error(error);
     }
   };
 
@@ -108,11 +128,9 @@ export const Rate: React.FC = () => {
     if (!currentHistoryId || !userId) return;
     setEmoji(newEmoji);
     try {
-      await updateDoc(doc(db, 'history', currentHistoryId), { 
-        [`emojis.${userId}`]: newEmoji 
-      });
+      await api.history.vote(currentHistoryId, userId, { emoji: newEmoji });
     } catch (error) {
-      handleFirestoreError(error, OperationType.UPDATE, `history/${currentHistoryId}`);
+      console.error(error);
     }
   };
 

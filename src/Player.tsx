@@ -5,7 +5,8 @@ import { Info, SkipForward, Maximize, Minimize, ArrowLeft, Feather } from 'lucid
 import { QRCodeSVG } from 'qrcode.react';
 import { useSession } from './SessionContext';
 import { translations } from './translations';
-import { db, collection, addDoc, doc, setDoc, handleFirestoreError, OperationType } from './firebase';
+import { api } from './api';
+import { v4 as uuidv4 } from 'uuid';
 
 export const Player: React.FC = () => {
   const { category } = useParams<{ category: string }>();
@@ -30,21 +31,18 @@ export const Player: React.FC = () => {
         
         // Create history doc
         if (sessionId) {
-          const historyRef = collection(db, 'history');
-          const newDoc = await addDoc(historyRef, {
+          const newId = uuidv4();
+          await api.history.create({
+            id: newId,
             sessionId,
             videoId: data.videoId,
             title: data.title,
             artist: data.artist,
-            timestamp: new Date().toISOString(),
-            ratings: {},
-            emojis: {},
+            timestamp: new Date().toISOString()
           });
           
           // Update session doc
-          await setDoc(doc(db, 'sessions', sessionId), {
-            currentHistoryId: newDoc.id
-          }, { merge: true });
+          await api.sessions.upsert(sessionId, newId);
         }
       } catch (error) {
         console.error("Error loading song:", error);

@@ -22,15 +22,16 @@ Flow is an interactive, real-time music discovery and rating application designe
 
 ### Architecture
 - **Frontend**: React (Vite), Tailwind CSS, React Router.
-- **Backend/Database**: Firebase Firestore (Real-time NoSQL database).
+- **Backend/Database**: Node.js Express Server with **SQLite** (`better-sqlite3`) and **Socket.IO** for real-time WebSocket sync.
+- **AI Integration**: Google Gemini API (`@google/genai`).
 - **AI Integration**: Google Gemini API (`@google/genai`).
 
 ### Data Flow & Real-Time Sync
 1. **Session Management**: When the app loads, a unique `sessionId` is generated (or retrieved from `localStorage`). This session acts as the "room" that connects the presenter's screen to the participants' phones.
 2. **Song Selection**: When the presenter selects a mood or searches for a song, the app calls the Gemini API to fetch song details (Title, Artist, YouTube Video ID, Lyrics, and Info).
-3. **Database Update**: The app creates a new document in the Firestore `history` collection containing the song data and an empty map for `ratings` and `emojis`. It then updates the `sessions` document to point to this new `currentHistoryId`.
-4. **Participant Voting**: When a participant scans the QR code, they are taken to `/vote/:sessionId`. The app listens to the `sessions` document to know which song is currently playing. When the participant votes, their rating and emoji are saved in the `history` document under their unique, locally-generated `userId`.
-5. **Library Aggregation**: The Library screen queries the `history` collection for the current session, filters for songs that have received votes, and calculates the average rating.
+3. **Database Update**: The app creates a new SQLite row in the `history` table containing the song data and empty JSON maps for `ratings` and `emojis`. It then updates the `sessions` table to point to this new `currentHistoryId` and emits a WebSocket event via Socket.IO.
+4. **Participant Voting**: When a participant scans the QR code, they are taken to `/vote/:sessionId`. The app listens to Socket.IO events to know which song is currently playing. When the participant votes, an API request triggers an update in the SQLite database, and the changes are broadcast back to the screen instantly.
+5. **Library Aggregation**: The Library screen queries the SQLite database for the current session, filtering for songs that have received votes.
 
 ### AI Prompts
 The app uses the Gemini API to generate content specifically tailored for users with cognitive disabilities (e.g., Down syndrome) who benefit from "Easy Read" formatting. The prompts are designed to accommodate limited working memory, literal thinking, and an early primary school reading level.
@@ -57,7 +58,11 @@ The app uses the Gemini API to generate content specifically tailored for users 
    ```env
    GEMINI_API_KEY=your_gemini_api_key
    ```
-4. Ensure your Firebase configuration is correctly set up in `src/firebase.ts`.
+4. Start the application along with the local database:
+   ```bash
+   npm run dev
+   ```
+   *For highly detailed instructions oriented for Social Workers, please read [LOCAL_HOSTING.md](./docs/LOCAL_HOSTING.md).*
 5. Run the development server:
    ```bash
    npm run dev
@@ -65,4 +70,4 @@ The app uses the Gemini API to generate content specifically tailored for users 
 
 ## Security & Privacy
 - **Anonymous Voting**: No personally identifiable information (PII) is collected from participants. User IDs are randomly generated UUIDs stored only in the browser's `localStorage`.
-- **Firestore Rules**: The database rules are configured to allow read/write access based on the `sessionId`, ensuring that data is isolated to the current session.
+- **Complete Local Governance**: Data never leaves the host computer (except when communicating over the local Wi-Fi to smartphones). The internal SQLite database holds all info without relying on external cloud databases.

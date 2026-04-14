@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSession } from './SessionContext';
-import { db, collection, query, where, getDocs, orderBy, handleFirestoreError, OperationType } from './firebase';
+import { api } from './api';
 import { PlayCircle, LayoutGrid, List, ArrowLeft, Clock, Star } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { translations } from './translations';
@@ -28,23 +28,20 @@ export const Library: React.FC = () => {
     const fetchHistory = async () => {
       if (!sessionId) return;
       try {
-        const q = query(
-          collection(db, 'history'),
-          where('sessionId', '==', sessionId),
-          orderBy('timestamp', 'desc')
-        );
-        const querySnapshot = await getDocs(q);
-        const items: HistoryItem[] = [];
-        querySnapshot.forEach((doc) => {
-          items.push({ id: doc.id, ...doc.data() } as HistoryItem);
-        });
+        // For the local API, we fetch all history and filter locally, 
+        // or just fetch all and let the API handle pagination later.
+        const data = await api.history.getPage(1000, 0); // Pull up to 1000 items
+        let items: HistoryItem[] = data.results;
+        
+        // Filter by current session
+        items = items.filter(item => item.sessionId === sessionId);
         
         // Filter to only items that have at least one vote
         const votedItems = items.filter(item => item.ratings && Object.keys(item.ratings).length > 0);
         
         setHistory(votedItems);
       } catch (error) {
-        handleFirestoreError(error, OperationType.LIST, 'history');
+        console.error(error);
       } finally {
         setLoading(false);
       }
