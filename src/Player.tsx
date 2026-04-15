@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fetchSongData, SongData } from './geminiService';
-import { Info, SkipForward, Maximize, Minimize, ArrowLeft, Feather } from 'lucide-react';
+import { Info, SkipForward, Maximize, Minimize, ArrowLeft, Feather, ExternalLink } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { useSession } from './SessionContext';
 import { translations } from './translations';
@@ -145,7 +145,7 @@ export const Player: React.FC = () => {
           <div className="flex-1 flex flex-col gap-6">
             <div 
               ref={containerRef} 
-              className={`relative bg-black rounded-[2rem] overflow-hidden shadow-2xl flex items-center justify-center ${
+              className={`relative bg-black rounded-[2rem] overflow-hidden shadow-2xl flex flex-col items-center justify-center ${
                 isFullscreen ? 'w-screen h-screen rounded-none' : 'aspect-video w-full max-w-5xl mx-auto'
               }`}
             >
@@ -156,6 +156,30 @@ export const Player: React.FC = () => {
                 allowFullScreen
                 className="w-full h-full border-0"
               ></iframe>
+
+              {/* External Link Fallback - Always visible if on IP or hovered */}
+              <div className={`absolute inset-0 flex items-center justify-center bg-black/60 transition-opacity ${
+                window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1' 
+                ? 'opacity-100' 
+                : 'opacity-0 hover:opacity-100'
+              }`}>
+                <div className="flex flex-col items-center gap-6 p-10 bg-white/10 backdrop-blur-md rounded-[2.5rem] border border-white/20 shadow-2xl">
+                  <p className="text-white text-3xl font-bold text-center drop-shadow-md">
+                    {t.videoBlocked}
+                  </p>
+                  <a 
+                    href={`https://www.youtube.com/watch?v=${song.videoId}`} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="bg-blue-500 hover:bg-blue-600 text-white px-12 py-6 rounded-[2rem] text-4xl font-bold transition-all shadow-2xl flex items-center gap-4 active:scale-95"
+                  >
+                    <div className="bg-white/20 p-2 rounded-xl">
+                      <ExternalLink size={40} />
+                    </div>
+                    {t.openVideo}
+                  </a>
+                </div>
+              </div>
               
               {/* Omnipresent QR Code Overlay */}
               <div className={`absolute bottom-4 right-4 bg-white p-4 rounded-2xl shadow-2xl flex flex-col items-center gap-2 transition-transform ${

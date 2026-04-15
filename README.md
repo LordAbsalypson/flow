@@ -67,8 +67,43 @@ The app uses the Gemini API to generate content specifically tailored for users 
    - Look for the **Network IP** in the terminal (e.g., `http://192.168.1.50:3000`).
    - Use that IP address on your Host PC browser.
    - This ensures the QR code generated points to the correct network address reachable by mobile devices.
+   - **Video Playback**: If YouTube blocks the video on your network IP, use the "In neuem Tab öffnen" button that appears on the player. This bypasses security restrictions for non-HTTPS origins.
 
 *For highly detailed instructions oriented for Social Workers, please read [LOCAL_HOSTING.md](./docs/LOCAL_HOSTING.md).*
+
+## User Tutorial (Local Host Version)
+
+### 1. For Social Workers / Presenters (The Host)
+
+#### Step 1: Start the App
+Follow the **Setup & Installation** steps. Make sure to open the app via the **Network IP** (e.g., `http://192.168.1.50:3000`) so participants can scan the QR code later.
+
+![Home Screen](./docs/screenshots/home.png)
+
+#### Step 2: Pick a Mood or Search
+Click **"Musik abspielen"** (Play Music) to go to the selection screen. Choose a mood or search for a specific artist.
+
+![Selection Screen](./docs/screenshots/selection.png)
+
+#### Step 3: Manage the Player
+The song will start playing. 
+- **Video blocked?** If you see a black screen or a YouTube error, click the big blue **"In neuem Tab öffnen"** button.
+- **Lyrics**: You can switch between "Summary" (Easy Read) and "Original" lyrics.
+- **Fullscreen**: Use the "Fullscreen" button to make the video and QR code large for everyone in the room.
+
+![Player Screen](./docs/screenshots/player.png)
+
+### 2. For Clients / Participants
+
+#### Step 1: Join the Session
+Scan the **QR Code** on the big screen with your smartphone camera. You will be taken to the voting page instantly.
+
+#### Step 2: Rate and React
+- **Rate**: Tap a star (1-5) to rate the song.
+- **Emoji**: Tap an emoji to show how you feel.
+- **Anonymous**: Your vote is private and anonymous.
+
+![Voting Screen](./docs/screenshots/voting.png)
 
 ## Security & Privacy
 - **Anonymous Voting**: No personally identifiable information (PII) is collected from participants. User IDs are randomly generated UUIDs stored only in the browser's `localStorage`.

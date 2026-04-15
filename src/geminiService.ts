@@ -24,19 +24,33 @@ export const fetchSongData = async (category: string, language: string = 'Englis
   - info: A short, concrete fact about the band or artist (2-3 sentences). Use very simple, everyday words. Use short, clear sentences. Do not use metaphors, idioms, or hard words. Write at an early primary school reading level. It should give a insight on the artist that you can understand the lyrics better (dont include the song). MUST BE IN ${language.toUpperCase()} LANGUAGE.`;
 
   const response = await ai.models.generateContent({
-    model: 'gemini-2.0-flash', // Updated to 2.0 for better grounding
+    model: 'gemini-3-flash-preview',
     contents: prompt,
     config: {
       responseMimeType: 'application/json',
-      tools: [{ googleSearch: {} }], // Enable search to find REAL IDs
     },
   });
 
   const data = JSON.parse(response.text || '{}');
 
-  // Removed oEmbed check as it is blocked by CORS in the browser 
-  // and leads to 403/404 errors that prevent the app from loading.
-  // We now rely on Gemini's Google Search tool to find valid IDs.
+  // Verify the video exists AND is embeddable
+  try {
+    // Step 1: Check if the video exists via YouTube's oEmbed endpoint
+    // This is the most reliable cross-origin check for existence/embeddability.
+    const oembedRes = await fetch(
+      `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${data.videoId}&format=json`
+    );
+    
+    if (!oembedRes.ok) {
+      if (retries > 0) {
+        console.log(`Video ${data.videoId} unavailable (oEmbed ${oembedRes.status}), retrying...`);
+        return fetchSongData(category, language, retries - 1);
+      }
+    }
+  } catch (e) {
+    console.warn("Could not verify video embeddability via oEmbed", e);
+    // On network errors, still try to continue — the video might still work
+  }
 
   // Fetch complete lyrics from lyrics database (lyrics.ovh)
   let originalLyrics = '';
