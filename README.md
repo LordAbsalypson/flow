@@ -63,6 +63,39 @@ The app uses the Gemini API to generate content specifically tailored for users 
    npm run dev
    ```
 
+## User Tutorial (Web Version)
+
+### 1. For Social Workers / Presenters (The Host)
+
+#### Step 1: Open the App
+Go to your deployed URL (e.g., `https://your-flow-app.vercel.app`).
+
+![Home Screen](./docs/screenshots/home.png)
+
+#### Step 2: Pick a Mood or Search
+Click **"Play Music"** to go to the selection screen. Choose a mood or search for a specific artist.
+
+![Selection Screen](./docs/screenshots/selection.png)
+
+#### Step 3: Manage the Player
+The song will start playing via the embedded YouTube player.
+- **Lyrics**: You can switch between "Summary" (Easy Read) and "Original" lyrics.
+- **Fullscreen**: Use the "Fullscreen" button for better visibility.
+
+![Player Screen](./docs/screenshots/player.png)
+
+### 2. For Clients / Participants
+
+#### Step 1: Join the Session
+Scan the **QR Code** on the big screen with your smartphone camera. You will be taken to the voting page instantly.
+
+#### Step 2: Rate and React
+- **Rate**: Tap a star (1-5) to rate the song.
+- **Emoji**: Tap an emoji to show how you feel.
+- **Anonymous**: Your vote is private and anonymous.
+
+![Voting Screen](./docs/screenshots/voting.png)
+
 ## Security & Privacy
 - **Anonymous Voting**: No personally identifiable information (PII) is collected from participants. User IDs are randomly generated UUIDs stored only in the browser's `localStorage`.
 - **Firestore Rules**: The database rules are configured to allow read/write access based on the `sessionId`, ensuring that data is isolated to the current session.
