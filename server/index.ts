@@ -3,7 +3,12 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 import Database from 'better-sqlite3';
 import cors from 'cors';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import os from 'os';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const getLocalIP = () => {
   const interfaces = os.networkInterfaces();
@@ -27,6 +32,10 @@ const io = new Server(httpServer, {
 
 app.use(cors());
 app.use(express.json());
+
+// Serve static files from the dist directory (after build)
+const distPath = path.join(__dirname, '../dist');
+app.use(express.static(distPath));
 
 const db = new Database('local_database.sqlite');
 db.pragma('journal_mode = WAL');
@@ -75,6 +84,25 @@ const statements = {
 io.on('connection', (socket) => {
   console.log('Client connected:', socket.id);
   
+  socket.on('subscribe', (topic) => {
+    socket.join(topic);
+    const [collection, id] = topic.split('/');
+    if (collection === 'history') {
+      const row = statements.getHistorySingle.get(id) as any;
+      if (row) {
+        socket.emit('change', {
+          ...row,
+          ratings: JSON.parse(row.ratings || '{}'),
+          emojis: JSON.parse(row.emojis || '{}')
+        });
+      }
+    }
+  });
+
+  socket.on('unsubscribe', (topic) => {
+    socket.leave(topic);
+  });
+
   socket.on('disconnect', () => {
     console.log('Client disconnected:', socket.id);
   });
@@ -166,6 +194,13 @@ app.put('/api/history/:id/vote', (req, res) => {
     }
     
     if (updated) {
+      const updatedRow = statements.getHistorySingle.get(id) as any;
+      const data = {
+        ...updatedRow,
+        ratings: JSON.parse(updatedRow.ratings || '{}'),
+        emojis: JSON.parse(updatedRow.emojis || '{}')
+      };
+      io.to(`history/${id}`).emit('change', data);
       io.emit('historyUpdated', { id });
     }
     
@@ -181,10 +216,19 @@ app.post('/api/feedback', (req, res) => {
   res.json({ success: true, id });
 });
 
-const PORT = 3001;
-const localIP = getLocalIP();
+// Fallback to index.html for SPA
+app.get('*', (req, res) => {
+  if (!req.path.startsWith('/api')) {
+    res.sendFile(path.join(distPath, 'index.html'));
+  }
+});
+
+const PORT = process.env.PORT || 3001;
+const LOCAL_IP = getLocalIP();
+
 httpServer.listen(PORT, '0.0.0.0', () => {
   console.log(`\x1b[32m🚀 Local Backend running on port ${PORT}\x1b[0m`);
-  console.log(`\x1b[36m🔗 Network: http://${localIP}:${PORT}\x1b[0m`);
+  console.log(`\x1b[36m🔗 Network: http://${LOCAL_IP}:${PORT}\x1b[0m`);
   console.log(`\x1b[36m🏠 Local:   http://localhost:${PORT}\x1b[0m`);
+  console.log(`\nIMPORTANT: Use http://${LOCAL_IP}:${PORT} if connecting from other devices!`);
 });
