@@ -47,7 +47,7 @@ The app uses the Gemini API to generate content specifically tailored for users 
 > - Translate any abstract lyrics or metaphors into literal, concrete concepts.
 > - Do NOT use idioms, complex sentences, or abstract content."
 
-## Setup & Installation
+## Setup & Installation (Local Host Version)
 
 1. Clone the repository.
 2. Install dependencies:
@@ -58,16 +58,18 @@ The app uses the Gemini API to generate content specifically tailored for users 
    ```env
    GEMINI_API_KEY=your_gemini_api_key
    ```
-4. Start the application along with the local database:
+4. Start the application:
    ```bash
    npm run dev
    ```
-   *For highly detailed instructions oriented for Social Workers, please read [LOCAL_HOSTING.md](./docs/LOCAL_HOSTING.md).*
-5. Run the development server:
-   ```bash
-   npm run dev
-   ```
+5. **How to access (CRITICAL)**:
+   - Do **NOT** use `http://localhost:3000` if you want participants to scan the QR code.
+   - Look for the **Network IP** in the terminal (e.g., `http://192.168.1.50:3000`).
+   - Use that IP address on your Host PC browser.
+   - This ensures the QR code generated points to the correct network address reachable by mobile devices.
+
+*For highly detailed instructions oriented for Social Workers, please read [LOCAL_HOSTING.md](./docs/LOCAL_HOSTING.md).*
 
 ## Security & Privacy
 - **Anonymous Voting**: No personally identifiable information (PII) is collected from participants. User IDs are randomly generated UUIDs stored only in the browser's `localStorage`.
-- **Complete Local Governance**: Data never leaves the host computer (except when communicating over the local Wi-Fi to smartphones). The internal SQLite database holds all info without relying on external cloud databases.
+- **Complete Local Governance**: Data never leaves the host computer. The internal SQLite database (`local_database.sqlite`) holds all info locally, and **Firebase has been removed entirely** for this version.

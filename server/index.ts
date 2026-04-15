@@ -3,6 +3,19 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 import Database from 'better-sqlite3';
 import cors from 'cors';
+import os from 'os';
+
+const getLocalIP = () => {
+  const interfaces = os.networkInterfaces();
+  for (const name of Object.keys(interfaces)) {
+    for (const iface of interfaces[name]!) {
+      if (iface.family === 'IPv4' && !iface.internal) {
+        return iface.address;
+      }
+    }
+  }
+  return 'localhost';
+};
 
 const app = express();
 const httpServer = createServer(app);
@@ -169,6 +182,9 @@ app.post('/api/feedback', (req, res) => {
 });
 
 const PORT = 3001;
-httpServer.listen(PORT, () => {
-  console.log(`Local Backend running on port ${PORT}`);
+const localIP = getLocalIP();
+httpServer.listen(PORT, '0.0.0.0', () => {
+  console.log(`\x1b[32m🚀 Local Backend running on port ${PORT}\x1b[0m`);
+  console.log(`\x1b[36m🔗 Network: http://${localIP}:${PORT}\x1b[0m`);
+  console.log(`\x1b[36m🏠 Local:   http://localhost:${PORT}\x1b[0m`);
 });

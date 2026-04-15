@@ -42,16 +42,20 @@ When you see the green text saying `Local Backend running on port 3001` and `Vit
 ## 4. How to join the session
 
 ### On the Host PC (TV/Monitor)
-Open the browser and enter: `http://localhost:3000/`
+**CRITICAL:** To make sure the QR code works for smartphones, do **NOT** use `localhost`. Instead, use your computer's **Network IP address**.
 
-You can start selecting a song. Once a song plays, a **QR Code** will be visible on the screen.
+1. When you run `npm run dev`, look for the line that says `Network: http://192.168.x.x:3000`.
+2. Open your browser and enter that specific address (e.g., `http://192.168.1.50:3000/`).
+
+If you use `localhost`, the QR code will point to `localhost`, and smartphones will not be able to find your computer!
 
 ### On the Smartphones (Clients)
 To make rating work:
 1. Ensure the smartphone is connected to the **same Wi-Fi** as the Host PC.
 2. Open the camera app on the smartphone and scan the QR code displayed on the screen.
-3. The phone will open a link that looks like `http://192.168...:3000/vote/SESSION_ID`. 
+3. The phone will open a link that looks like `http://192.168.x.x:3000/vote/SESSION_ID`. 
 4. The rating view appears, and votes are pushed **instantly** to the big screen. No internet data required! 
 
+> **Note on YouTube:** If YouTube videos are blocked or won't play, ensure you accessed the app via the IP address. Modern browsers may block certain features on "insecure" network origins, but using the correct IP and our updated player settings should resolve most issues.
 ## 5. Shutting down
 To close the software, simply select the terminal window and press **Ctrl + C**. The `local_database.sqlite` file is safely stored, and your state will continue to work normally next time you boot up.

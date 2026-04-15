@@ -14,32 +14,29 @@ export interface SongData {
 export const fetchSongData = async (category: string, language: string = 'English', retries = 3): Promise<SongData> => {
   const prompt = `Find a popular ${category} song.
   Return ONLY a valid JSON object with the following fields:
-  - videoId: the YouTube video ID. IMPORTANT: Prefer lyric videos or audio-only versions, as official music videos often block embedding.
+  - videoId: the YouTube video ID. 
+    CRITICAL: You MUST choose a "Karaoke" version, "Lyrics" video, or a fan-uploaded version. 
+    Do NOT pick official music videos or VEVO channels. 
+    Official videos almost always block embedding on non-HTTPS network addresses. 
+    Check for videos that have "Lyrics" or "Karaoke" in the title.
   - title: the song title.
   - artist: the artist name.
   - info: A short, concrete fact about the band or artist (2-3 sentences). Use very simple, everyday words. Use short, clear sentences. Do not use metaphors, idioms, or hard words. Write at an early primary school reading level. It should give a insight on the artist that you can understand the lyrics better (dont include the song). MUST BE IN ${language.toUpperCase()} LANGUAGE.`;
 
   const response = await ai.models.generateContent({
-    model: 'gemini-3-flash-preview',
+    model: 'gemini-2.0-flash', // Updated to 2.0 for better grounding
     contents: prompt,
     config: {
       responseMimeType: 'application/json',
+      tools: [{ googleSearch: {} }], // Enable search to find REAL IDs
     },
   });
 
   const data = JSON.parse(response.text || '{}');
 
-  // Check if video is embeddable using noembed (supports CORS)
-  try {
-    const embedCheck = await fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${data.videoId}`);
-    const embedData = await embedCheck.json();
-    if (embedData.error && retries > 0) {
-      console.log(`Video ${data.videoId} not embeddable, retrying...`);
-      return fetchSongData(category, language, retries - 1);
-    }
-  } catch (e) {
-    console.warn("Could not verify video embeddability", e);
-  }
+  // Removed oEmbed check as it is blocked by CORS in the browser 
+  // and leads to 403/404 errors that prevent the app from loading.
+  // We now rely on Gemini's Google Search tool to find valid IDs.
 
   // Fetch complete lyrics from lyrics database (lyrics.ovh)
   let originalLyrics = '';

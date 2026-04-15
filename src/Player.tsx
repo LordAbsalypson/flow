@@ -116,8 +116,8 @@ export const Player: React.FC = () => {
     );
   }
 
-  const baseUrl = window.location.origin.replace('ais-dev', 'ais-pre');
-  const qrUrl = `${baseUrl}/vote/${sessionId}?lang=${language}`;
+  // Always use the current hostname (which is the network IP when accessed via LAN)
+  const qrUrl = `${window.location.origin}/vote/${sessionId}?lang=${language}`;
 
   return (
     <div className="flex flex-col gap-6 flex-1 max-w-7xl mx-auto w-full">
@@ -150,9 +150,9 @@ export const Player: React.FC = () => {
               }`}
             >
               <iframe
-                src={`https://www.youtube.com/embed/${song.videoId}?autoplay=1&controls=1&modestbranding=1&rel=0`}
+                src={`https://www.youtube-nocookie.com/embed/${song.videoId}?autoplay=1&controls=1&modestbranding=1&rel=0&enablejsapi=1`}
                 title="YouTube video player"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowFullScreen
                 className="w-full h-full border-0"
               ></iframe>
